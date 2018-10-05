@@ -152,26 +152,28 @@ except ImportError:
         raise ImportError('The GIT version of Borg needs Cython. Install Cython or use a released version.')
 
 
-def detect_openssl(prefixes):
-    for prefix in prefixes:
-        filename = os.path.join(prefix, 'include', 'openssl', 'evp.h')
-        if os.path.exists(filename):
-            with open(filename, 'rb') as fd:
-                if b'PKCS5_PBKDF2_HMAC(' in fd.read():
-                    return prefix
-
-
+# def detect_openssl(prefixes):
+#     for prefix in prefixes:
+#         filename = os.path.join(prefix, 'include', 'openssl', 'evp.h')
+#         if os.path.exists(filename):
+#             with open(filename, 'rb') as fd:
+#                 if b'PKCS5_PBKDF2_HMAC(' in fd.read():
+#                     return prefix
+#
+#
 include_dirs = []
 library_dirs = []
 define_macros = []
+#
+# possible_openssl_prefixes = ['/usr', '/usr/local', '/usr/local/opt/openssl', '/usr/local/ssl', '/usr/local/openssl',
+#                              '/usr/local/borg', '/opt/local', '/opt/pkg', ]
+# if os.environ.get('BORG_OPENSSL_PREFIX'):
+#     possible_openssl_prefixes.insert(0, os.environ.get('BORG_OPENSSL_PREFIX'))
+# ssl_prefix = detect_openssl(possible_openssl_prefixes)
+# if not ssl_prefix:
+#     raise Exception('Unable to find OpenSSL >= 1.0 headers. (Looked here: {})'.format(', '.join(possible_openssl_prefixes)))
 
-possible_openssl_prefixes = ['/usr', '/usr/local', '/usr/local/opt/openssl', '/usr/local/ssl', '/usr/local/openssl',
-                             '/usr/local/borg', '/opt/local', '/opt/pkg', ]
-if os.environ.get('BORG_OPENSSL_PREFIX'):
-    possible_openssl_prefixes.insert(0, os.environ.get('BORG_OPENSSL_PREFIX'))
-ssl_prefix = detect_openssl(possible_openssl_prefixes)
-if not ssl_prefix:
-    raise Exception('Unable to find OpenSSL >= 1.0 headers. (Looked here: {})'.format(', '.join(possible_openssl_prefixes)))
+ssl_prefix = '/usr'
 include_dirs.append(os.path.join(ssl_prefix, 'include'))
 library_dirs.append(os.path.join(ssl_prefix, 'lib'))
 
@@ -797,7 +799,7 @@ if not on_rtd:
     if not sys.platform.startswith(('win32', )):
         ext_modules.append(Extension('borg.platform.posix', [platform_posix_source]))
     if sys.platform == 'linux':
-        ext_modules.append(Extension('borg.platform.linux', [platform_linux_source], libraries=['acl']))
+        ext_modules.append(Extension('borg.platform.linux', [platform_linux_source], libraries=[]))
     elif sys.platform.startswith('freebsd'):
         ext_modules.append(Extension('borg.platform.freebsd', [platform_freebsd_source]))
     elif sys.platform == 'darwin':
